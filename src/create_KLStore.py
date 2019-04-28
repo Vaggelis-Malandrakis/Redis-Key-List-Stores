@@ -1,5 +1,3 @@
-# !/usr/bin/env python3
-
 import redis
 import os
 import json
@@ -53,17 +51,9 @@ def create_KLStore_from_excel(r, klStore_name, filename, path, query_string, pos
     reader = open_workbook(os.path.join(FILE_PATH, path + filename), on_demand=True )
     sheet = reader.sheet_by_name(query_string)
 
-    pipe = r.pipeline()
-    while True:
-        try:
-            for key, value in zip(sheet.col(position1), sheet.col(position2)):
-                pipe.rpush(key.value.encode("utf-8"), value.value.encode("utf-8"))
-                pipe.sadd(klStore_name, key)
-
-            pipe.execute()
-            break
-        except Exception:
-            continue
+    for key, value in zip(sheet.col(position1), sheet.col(position2)):
+        r.rpush(key.value, value.value)
+        r.sadd(klStore_name, key.value.encode("utf-8"))
 
 
 def create_KLStore_from_db(r, klStore_name, host, user, pwd, database, query_string, direction):
@@ -150,10 +140,11 @@ def get_datasource(name, data_source, query_string, position1, position2, direct
 
 if __name__ == '__main__':
     # csv file:
+    # get_datasource ( "Sales_csv", "datasource.json", "", 0, 1, "" )
     get_datasource("Sales2_csv", "datasource.json", "", 2, 1, "")
 
     # excel file:
-    # get_datasource("Sales_excel", "datasource.json", "sales", 3, 2, "")
+    get_datasource("Sales_excel", "datasource.json", "transactions", 0, 1, "")
 
     # relational db:
     # get_datasource("Sales_db", "datasource.json", "SELECT trans_id, cust_id FROM redis_bigData_db.Sales "

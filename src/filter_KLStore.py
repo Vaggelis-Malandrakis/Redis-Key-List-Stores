@@ -1,9 +1,4 @@
-# !/usr/bin/env python3
-
 import redis
-import os
-
-FILE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 def filter_KLStore(name1, expression):
@@ -22,14 +17,22 @@ def filter_KLStore(name1, expression):
         # using the default encoding utf-8.  This is client specific.
         r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
-        keys = r.smembers(name1)
-        for key in keys:
-            list = r.lrange(key, 0, -1)
-            for index, value in enumerate(list):
-                val = value.strip()
-                expression = expression.replace(" ", "")
-                if eval(expression):
-                    r.lrem(key, 0, value)
+        pipe = r.pipeline()
+        while True:
+            try:
+                keys = r.smembers(name1)
+                for key in keys:
+                    list = r.lrange(key, 0, -1)
+                    for index, value in enumerate(list):
+                        val = value.strip()
+                        expression = expression.replace(" ", "")
+                        if eval(expression):
+                            pipe.lrem(key, 0, value)
+
+                pipe.execute()
+                break
+            except Exception:
+                continue
 
     except Exception as e:
         raise Exception(e)
