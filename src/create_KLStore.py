@@ -25,20 +25,18 @@ def create_KLStore_from_csv(r, filename, path, delimeter, position1, position2):
     with open(os.path.join(FILE_PATH, path + filename)) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=delimeter)
 
-        with r.pipeline() as pipe:
-            while True:
-                try:
-                    pipe.watch('OUR-SEQUENCE-KEY')
-                    pipe.multi()
-                    for row in csv_reader:
-                        pipe.rpush(row[position1], row[position2])
+        pipe = r.pipeline()
+        while True:
+            try:
+                pipe.watch('OUR-SEQUENCE-KEY')
+                pipe.multi()
+                for row in csv_reader:
+                    pipe.rpush(row[position1], row[position2])
 
-                    pipe.execute()
-                    break
-                except Exception:
-                    continue
-                finally:
-                    pipe.reset()
+                pipe.execute()
+                break
+            except Exception:
+                continue
 
 
 def create_KLStore_from_excel(r, filename, path, query_string, position1, position2):
@@ -56,20 +54,18 @@ def create_KLStore_from_excel(r, filename, path, query_string, position1, positi
     reader = open_workbook(os.path.join(FILE_PATH, path + filename), on_demand=True )
     sheet = reader.sheet_by_name(query_string)
 
-    with r.pipeline() as pipe:
-        while True:
-            try:
-                pipe.watch('OUR-SEQUENCE-KEY')
-                pipe.multi()
-                for key, value in zip(sheet.col(position1), sheet.col(position2)):
-                    r.rpush(key.value.encode("utf-8"), value.value.encode("utf-8"))
+    pipe = r.pipeline()
+    while True:
+        try:
+            pipe.watch('OUR-SEQUENCE-KEY')
+            pipe.multi()
+            for key, value in zip(sheet.col(position1), sheet.col(position2)):
+                pipe.rpush(key.value.encode("utf-8"), value.value.encode("utf-8"))
 
-                pipe.execute()
-                break
-            except Exception:
-                continue
-            finally:
-                pipe.reset()
+            pipe.execute()
+            break
+        except Exception:
+            continue
 
 
 def create_KLStore_from_db(r, host, user, pwd, database, query_string, direction):
@@ -95,24 +91,20 @@ def create_KLStore_from_db(r, host, user, pwd, database, query_string, direction
     my_cursor.execute(query_string)
     my_result = my_cursor.fetchall()
 
-    with r.pipeline() as pipe:
-        while True:
-            try:
-                pipe.watch('OUR-SEQUENCE-KEY')
-                pipe.multi()
-                for x in my_result:
-                    # if direction is equal to 1, key is in position 0 of returned array and
-                    # value in position 1 (direction%2)
-                    # if direction is equal to 2, key is in position 1 of returned array and
-                    # value in position 0 (direction%2)
-                    r.rpush(x[direction - 1], x[direction % 2])
+    pipe = r.pipeline()
+    while True:
+        try:
+            for x in my_result:
+                # if direction is equal to 1, key is in position 0 of returned array and
+                # value in position 1 (direction%2)
+                # if direction is equal to 2, key is in position 1 of returned array and
+                # value in position 0 (direction%2)
+                pipe.rpush(x[direction - 1], x[direction % 2])
 
-                pipe.execute()
-                break
-            except Exception:
-                continue
-            finally:
-                pipe.reset()
+            pipe.execute()
+            break
+        except Exception:
+            continue
 
 
 def get_datasource(name, data_source, query_string, position1, position2, direction):
