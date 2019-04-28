@@ -4,7 +4,7 @@
 			"dbconnect": {
 				"host": "localhost",
 				"username": "redis_bigData_user",
-				"password": "4aTik$iaGcN",
+				"password": "password",
 				"database": "redis_bigData_db"
 			},
 			"id": "1",

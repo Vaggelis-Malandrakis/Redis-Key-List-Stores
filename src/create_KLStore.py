@@ -10,7 +10,7 @@ import mysql.connector
 FILE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-def create_KLStore_from_csv(r, filename, path, delimeter, position1, position2):
+def create_KLStore_from_csv(r, klStore_name, filename, path, delimeter, position1, position2):
     """
     This function retrieve data from a csv file and creates a Key-list store in redis based on these data
 
@@ -28,10 +28,9 @@ def create_KLStore_from_csv(r, filename, path, delimeter, position1, position2):
         pipe = r.pipeline()
         while True:
             try:
-                pipe.watch('OUR-SEQUENCE-KEY')
-                pipe.multi()
                 for row in csv_reader:
                     pipe.rpush(row[position1], row[position2])
+                    pipe.sadd(klStore_name, row[position1])
 
                 pipe.execute()
                 break
@@ -39,7 +38,7 @@ def create_KLStore_from_csv(r, filename, path, delimeter, position1, position2):
                 continue
 
 
-def create_KLStore_from_excel(r, filename, path, query_string, position1, position2):
+def create_KLStore_from_excel(r, klStore_name, filename, path, query_string, position1, position2):
     """
     This function retrieve data from an excel file and creates a Key-list store in redis based on these data
 
@@ -57,10 +56,9 @@ def create_KLStore_from_excel(r, filename, path, query_string, position1, positi
     pipe = r.pipeline()
     while True:
         try:
-            pipe.watch('OUR-SEQUENCE-KEY')
-            pipe.multi()
             for key, value in zip(sheet.col(position1), sheet.col(position2)):
                 pipe.rpush(key.value.encode("utf-8"), value.value.encode("utf-8"))
+                pipe.sadd(klStore_name, key)
 
             pipe.execute()
             break
@@ -68,7 +66,7 @@ def create_KLStore_from_excel(r, filename, path, query_string, position1, positi
             continue
 
 
-def create_KLStore_from_db(r, host, user, pwd, database, query_string, direction):
+def create_KLStore_from_db(r, klStore_name, host, user, pwd, database, query_string, direction):
     """
     This function retrieve data from an relational database and creates a Key-list store in redis based on these data
 
@@ -100,6 +98,7 @@ def create_KLStore_from_db(r, host, user, pwd, database, query_string, direction
                 # if direction is equal to 2, key is in position 1 of returned array and
                 # value in position 0 (direction%2)
                 pipe.rpush(x[direction - 1], x[direction % 2])
+                pipe.sadd(klStore_name, x[direction - 1])
 
             pipe.execute()
             break
@@ -134,13 +133,14 @@ def get_datasource(name, data_source, query_string, position1, position2, direct
             data = datasources[name]
 
             if data["type"] == "csv":
-                create_KLStore_from_csv(r, data["filename"], data["path"], data["delimiter"], position1, position2)
+                create_KLStore_from_csv(r, name, data["filename"], data["path"], data["delimiter"], position1,
+                                        position2)
 
             if data["type"] == "excel":
-                create_KLStore_from_excel(r, data["filename"], data["path"], query_string, position1, position2)
+                create_KLStore_from_excel(r, name, data["filename"], data["path"], query_string, position1, position2)
 
             if data["type"] == "db":
-                create_KLStore_from_db(r, data['dbconnect']['host'], data['dbconnect']['username'],
+                create_KLStore_from_db(r, name, data['dbconnect']['host'], data['dbconnect']['username'],
                                        data['dbconnect']['password'], data['dbconnect']['database'], query_string,
                                        direction)
 
@@ -150,24 +150,11 @@ def get_datasource(name, data_source, query_string, position1, position2, direct
 
 if __name__ == '__main__':
     # csv file:
-    # query string is empty,
-    # position 1 and 2 two integer numbers specifying the column positions
-    # that will be used to form the (u,v) pairs of S
-
-    #TODO handle wrong inputs
-    #TODO DO NOT add already existing values of a key in Redis => maybe use a set by using sadd command
     get_datasource("Sales2_csv", "datasource.json", "", 2, 1, "")
 
     # excel file:
-    # <query-string> contains the index of the worksheet
-    # <position1> and <position2> two integer numbers specifying
-    # the column positions that will be used to form the (u,v) pairs of S
-
-    get_datasource("Sales_excel", "datasource.json", "sales", 3, 2, "")
+    # get_datasource("Sales_excel", "datasource.json", "sales", 3, 2, "")
 
     # relational db:
-    # <query-string> is an SQL statement in the form SELECT col1, col2 WHERE <etc>.
-    # <direction> has the value 1 or 2, specifying whether KL1(D) or KL2(D) should be implemented.
-
-    get_datasource("Sales_db", "datasource.json", "SELECT trans_id, cust_id FROM redis_bigData_db.Sales "
-                                                  "WHERE cust_id = 'c1';", "", "", 2)
+    # get_datasource("Sales_db", "datasource.json", "SELECT trans_id, cust_id FROM redis_bigData_db.Sales "
+    #                                               "WHERE cust_id = 'c1';", "", "", 2)
