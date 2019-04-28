@@ -1,0 +1,34 @@
+{
+	"datasources": {
+		"Sales_db": {
+			"dbconnect": {
+				"host": "localhost",
+				"username": "redis_bigData_user",
+				"password": "4aTik$iaGcN",
+				"database": "redis_bigData_db"
+			},
+			"id": "1",
+			"type": "db"
+		},
+		"Sales_csv": {
+			"filename": "sales.csv",
+			"path": "./data/",
+			"delimiter": ",",
+			"id": "2",
+			"type": "csv"
+		},
+		"Sales2_csv": {
+			"filename": "sales2.csv",
+			"path": "./data/",
+			"delimiter": ",",
+			"id": "3",
+			"type": "csv"
+		},
+		"Sales_excel": {
+			"filename": "sales.xls",
+			"path": "./data/",
+			"id": "4",
+			"type": "excel"
+		}
+	}
+}
