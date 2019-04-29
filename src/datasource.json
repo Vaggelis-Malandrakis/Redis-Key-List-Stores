@@ -3,9 +3,9 @@
 		"Sales_db": {
 			"dbconnect": {
 				"host": "localhost",
-				"username": "redis_bigData_user",
+				"username": "redis_user",
 				"password": "password",
-				"database": "redis_bigData_db"
+				"database": "redis_db"
 			},
 			"id": "1",
 			"type": "db"
@@ -17,8 +17,8 @@
 			"id": "2",
 			"type": "csv"
 		},
-		"Sales2_csv": {
-			"filename": "sales2.csv",
+		"Transactions_csv": {
+			"filename": "transactions.csv",
 			"path": "./data/",
 			"delimiter": ",",
 			"id": "3",
