@@ -49,3 +49,11 @@ def initializeKLStoreAdvanced(name, k):
 
     pipe.execute()
 
+
+if __name__=="__main__":
+
+    initializeKLStore('clients')
+
+    initializeKLStore('transactions')
+
+    initializeKLStoreAdvanced('store', 3)

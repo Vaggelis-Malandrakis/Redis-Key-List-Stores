@@ -1,6 +1,5 @@
 import redis
 import random
-from initializers import initializeKLStore
 import sys
 
 def byte_to_string(string):
@@ -222,8 +221,6 @@ if __name__ == '__main__':
         :return: the string that comes from the list editing
         """
         return str(len(list) * random.randint(1, 10))
-
-    initializeKLStore('clients')
 
     # initialize Redis connection
     r = redis.Redis(host='localhost', port=6379)

@@ -1,6 +1,5 @@
 import random
 import re
-from initializers import initializeKLStoreAdvanced
 import redis
 
 def random_list_element(list):
@@ -141,8 +140,6 @@ def ProjSel_KLStore(output_name, pnames, expression):
 
 
 if __name__ == '__main__':
-
-    initializeKLStoreAdvanced('store', 3)
 
     # initialize Redis connection
     r = redis.Redis(host='localhost', port=6379)

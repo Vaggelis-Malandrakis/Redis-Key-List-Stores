@@ -1,6 +1,5 @@
 import redis
 import random
-from initializers import initializeKLStore
 
 def byte_to_string(string):
     """
@@ -55,9 +54,7 @@ if __name__ == '__main__':
         return string[:random.randint(1, len(string))]
 
 
-    initializeKLStore('clients')
-
     # initialize Redis connection
     r = redis.Redis(host='localhost', port=6379)
 
-    Apply_KLStore('clients', random_string_transformer)
+    Apply_KLStore('transactions', random_string_transformer)
