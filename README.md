@@ -3,6 +3,12 @@
 
 ### Installation
 
+In order to be able to use the functions you should:
+- have **Redis** installed and running in your local pc. Further info can be found [here](https://redis.io/download#installation).
+- have **MySQL** installed in your local pc. In order to fill the database with dummy data you can execute the SQL commands that we provide
+- download the Excel and CSV files (with dummy data) that can be found at `data/` directory.
+- execute the setup.sh script we provide which includes: *python 3.6*, *pip*, *virtualenv*, *redis-py*, *xlrd*, *mysql-connector-python*
+
 ### Functions
 *Details on each function can be found in the Python files*
 - **Create_KLStore** *(name, data-source, query-string, position1, position2, direction)*
