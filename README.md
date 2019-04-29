@@ -11,8 +11,8 @@ In order to be able to use the functions you should:
 
 **MySQL**
 
-- Συνδεόμαστε με τη βάση δίνοντας: *sudo mysql -u root -p*
-- Δημιουργείστε τη βάση redis_db εισάγοντας τις ακόλουθες εντολές SQL:
+- Connect with mySQL: *sudo mysql -u root -p*
+- Create a database redis_db and insert the following SQL commands:
 
 ```
 mysql> CREATE DATABASE redis_db CHARACTER SET utf8 COLLATE utf8_general_ci;
@@ -20,7 +20,7 @@ mysql> CREATE USER 'redis_user'@'localhost' IDENTIFIED BY 'password';
 mysql> GRANT ALL PRIVILEGES ON redis_db.* TO 'redis_user'@'localhost';    
 ```
 
-- Δημιουργούμε πίνακα στην βάση:
+- Create tables in db:
 
 ```
 CREATE TABLE `redis_db`.`Sales` (
@@ -35,7 +35,7 @@ CREATE TABLE `redis_db`.`Transactions` (
   PRIMARY KEY (`trans_id`));
 ```
 
-- Εισάγουμε τα δεδομένα στην βάση με την εκτέλεση της ακόλουθης εντολής:
+- Insert data in db with the following SQL commands:
 
 ```
 INSERT INTO `redis_db`.`Sales` VALUES ('0', 'store1:c1', '1'), ('1', 'store1:c1', '5'), 
